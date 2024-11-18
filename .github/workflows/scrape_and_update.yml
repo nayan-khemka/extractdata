@@ -25,12 +25,14 @@ jobs:
         pip install requests beautifulsoup4 pandas openpyxl
 
     - name: Run script
-      run: python program.py
+      run: python your_script_name.py
 
     - name: Commit and push changes
+      env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
       run: |
         git config --global user.name 'github-actions'
         git config --global user.email 'github-actions@github.com'
         git add tables.xlsx
         git commit -m 'Update tables'
-        git push
+        git push https://x-access-token:${GH_TOKEN}@github.com/nayan-khemka/extractdata.git
