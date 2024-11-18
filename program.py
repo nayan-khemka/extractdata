@@ -1,33 +1,62 @@
-import requests
-import pandas as pd
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
+
 from bs4 import BeautifulSoup
-import openpyxl
+import pandas as pd
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
-def fetch_and_extract_tables(url):
-    response = requests.get(url)
-    soup = BeautifulSoup(response.content, 'html.parser')
-    tables = soup.find_all('table')
+def extract_table(url):
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+    driver.get(url)
 
-    data_frames = []
-    for table in tables:
-        df = pd.read_html(str(table))[0]
-        data_frames.append(df)
+    # Explicitly wait for the table to load (adjust timeout as needed)
+    wait = WebDriverWait(driver, 10)
+    table = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "table")))  # Adjust the selector as needed
 
-    return data_frames
+    # Get the rendered HTML content
+    html_content = driver.page_source
+   
+    # Parse the HTML with BeautifulSoup
+    soup = BeautifulSoup(html_content, 'html.parser')
 
-def save_to_excel(data_frames, filename):
-    with pd.ExcelWriter(filename) as writer:
-        if data_frames:  # Check if there's at least one DataFrame
-            for i, df in enumerate(data_frames):
-                df.to_excel(writer, sheet_name=f'Table_{i+1}')
-        else:
-            # Create at least one empty sheet if there are no data frames
-            pd.DataFrame().to_excel(writer, sheet_name='Empty')
+    table = soup.find('table')
+    print(table)
+    table_data = []
+    for row in table.find_all('tr'):
+        row_data = []
+        rowspan = 1  # Initialize rowspan for each row
+        for cell in row.find_all(['td', 'th']):
+            if cell.has_attr('rowspan'):
+                rowspan = int(cell.get('rowspan'))
+            if cell.has_attr('colspan'):
+                colspan = int(cell.get('colspan'))
+                row_data.extend([cell.text.strip()] * colspan)
+            else:
+                row_data.append(cell.text.strip())
+        table_data.extend([row_data] * rowspan)
 
-def main():
-    url = 'https://www.snam.it/en/our-businesses/transportation/operational-data-business/phisical-flows-on-the-national-network.html'
-    data_frames = fetch_and_extract_tables(url)
-    save_to_excel(data_frames, 'tables.xlsx')
+    df = pd.DataFrame(table_data[1:], columns=table_data[0])
 
-if __name__ == '__main__':
-    main()
+    driver.quit()
+
+    return df
+
+
+def save_to_excel(df, file_path):
+    if not os.path.exists(file_path):
+        df.to_excel(file_path, index=False)
+    else:
+        with pd.ExcelWriter(file_path, mode='a', if_sheet_exists='replace') as writer:
+            df.to_excel(writer, sheet_name='Sheet1', index=False)
+
+# Replace with the actual URL of the table you want to extract
+url = "https://www.snam.it/en/our-businesses/transportation/operational-data-business/phisical-flows-on-the-national-network.html"
+filename = "snam_table.xlsx"
+
+df = extract_table(url)
+save_to_excel(df, filename)
+
+print(f"Table extracted and saved to {filename}")
