@@ -8,6 +8,7 @@ import pandas as pd
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+import os
 
 def extract_table(url):
 
@@ -52,12 +53,14 @@ def extract_table(url):
 
 
 def save_to_excel(df, file_path):
+    # Assuming the Excel file is in the same directory as the script
+    file_path = os.path.join(os.getcwd(), file_path)
+
     if not os.path.exists(file_path):
         df.to_excel(file_path, index=False)
     else:
         with pd.ExcelWriter(file_path, mode='a', if_sheet_exists='replace') as writer:
             df.to_excel(writer, sheet_name='Sheet1', index=False)
-
 # Replace with the actual URL of the table you want to extract
 url = "https://www.snam.it/en/our-businesses/transportation/operational-data-business/phisical-flows-on-the-national-network.html"
 filename = "snam_table.xlsx"
