@@ -25,7 +25,7 @@ jobs:
         pip install requests beautifulsoup4 pandas openpyxl
 
     - name: Run script
-      run: python your_script_name.py
+      run: python program.py
 
     - name: Commit and push changes
       env:
