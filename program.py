@@ -25,7 +25,7 @@ def save_to_excel(data_frames, filename):
             pd.DataFrame().to_excel(writer, sheet_name='Empty')
 
 def main():
-    url = 'https://teams.microsoft.com/l/message/19:02af48fa-f7ab-4f7a-9063-146672972066_6e9bbcc8-378d-464a-be47-9fb6b06c76f8@unq.gbl.spaces/1731919250519?context=%7B%22contextType%22%3A%22chat%22%7D'
+    url = 'https://www.snam.it/en/our-businesses/transportation/operational-data-business/phisical-flows-on-the-national-network.html'
     data_frames = fetch_and_extract_tables(url)
     save_to_excel(data_frames, 'tables.xlsx')
 
