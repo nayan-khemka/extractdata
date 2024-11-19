@@ -64,6 +64,7 @@ def save_to_excel(df, file_path):
 
 url = "https://www.snam.it/en/our-businesses/transportation/operational-data-business/phisical-flows-on-the-national-network.html"
 filename = "snam_table.xlsx"
+# id="physical-flows-table-tabpanel-0"
 
 df = extract_table(url)
 save_to_excel(df, filename)
