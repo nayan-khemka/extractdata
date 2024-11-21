@@ -59,8 +59,11 @@ def save_to_excel(df, file_path):
     if not os.path.exists(file_path):
         df.to_excel(file_path, index=False)
     else:
-        with pd.ExcelWriter(file_path, mode='a', if_sheet_exists='replace') as writer:
-            df.to_excel(writer, sheet_name='Sheet1', index=False)
+        with pd.ExcelWriter(file_path, mode='a', if_sheet_exists='overlay') as writer:
+            timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+            df.to_excel(writer, sheet_name=f'Sheet_{timestamp}', index=False)
+        
+
 
 url = "https://www.snam.it/en/our-businesses/transportation/operational-data-business/phisical-flows-on-the-national-network.html"
 filename = "snam_table.xlsx"
