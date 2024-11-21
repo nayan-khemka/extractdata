@@ -56,7 +56,7 @@ def extract_table(url):
 def save_to_excel(df, file_path):
     # Assuming the Excel file is in the same directory as the script
     file_path = os.path.join(os.getcwd(), file_path)
-
+    print(file_path)
     if not os.path.exists(file_path):
         df.to_excel(file_path, index=False)
     else:
